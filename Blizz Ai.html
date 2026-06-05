@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Blizz AI Pro V3.0</title>
+    <meta name="theme-color" content="#0a0a1a">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rosemary&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --font-primary: 'Rosemary', 'Inter', sans-serif;
+            --bg-base: #0a0a1a;
+            --glass-bg: rgba(20, 20, 40, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.12);
+            --glass-hover: rgba(255, 255, 255, 0.1);
+            --text-primary: #e8e8f0;
+            --text-secondary: #a0a0b8;
+            --accent-blue: #4a90d9;
+            --accent-green: #34c759;
+            --accent-purple: #8b5cf6;
+            --transition-speed: 0.25s;
+            --panel-bg: rgba(15, 15, 35, 0.85);
+        }
+        /* Paneli kompakti yenye gridi */
+.settings-panel.compact-grid {
+    padding: 12px;
+    max-width: 380px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    color: #1e293b;
+}
+
+/* Mistari ya mipangilio */
+.setting-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;  /* pungufu */
+    gap: 6px;
+}
+
+/* Safu yenye vitu viwili (two-col) */
+.setting-row.two-col {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.setting-row.two-col > div {
+    flex: 1 1 45%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4px;
+}
+
+/* Lebo */
+.setting-row span {
+    font-size: 12px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Vitufe */
+.setting-row button {
+    background: #f1f5f9;
+    border: 1px solid #cbd5e1;
+    color: #1e293b;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    min-width: 50px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.setting-row button:hover {
+    background: #e2e8f0;
+}
+
+.setting-row button.active-state {
+    background: #0f172a;
+    color: #fff;
+    border-color: #0f172a;
+}
+
+/* Visanduku vya uteuzi */
+.setting-row select {
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid #cbd5e1;
+    background: #f8fafc;
+    font-size: 12px;
+    font-weight: 500;
+    min-width: 80px;
+}
+
+/* Futa kashe */
+#clearCacheBtn {
+    width: 100%;
+    background: #fee2e2;
+    border: 1px solid #fecaca;
+    color: #b91c1c;
+    padding: 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* Sehemu ya mmiliki imefungwa vizuri */
+.owner-info p {
+    font-size: 11px;
+    margin: 2px 0;
+}
+
+/* Mandhari ya giza (kama unatumia body.dark) */
+body.dark .settings-panel.compact-grid {
+    background: #1e293b;
+    color: #e2e8f0;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+body.dark .setting-row button {
+    background: #334155;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+body.dark .setting-row button.active-state {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+body.dark .setting-row select {
+    background: #334155;
+    border-color: #475569;
+    color: #e2e8f0;
+}
+body.dark #clearCacheBtn {
+    background: #7f1d1d;
+    border-color: #991b1b;
+    color: #fecaca;
+}
+        /* Table borders */
+        .markdown-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 8px 0;
+            font-size: 0.9em;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border, #555);
+        }
+        .markdown-table th,
+        .markdown-table td {
+            border: 1px solid var(--glass-border, #555);
+            padding: 8px 12px;
+            text-align: left;
+        }
+        .markdown-table th {
+            background: rgba(255, 255, 255, 0.08);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        /* Streaming cursor */
+        .ai-content.streaming-text::after {
+            content: '▋';
+            animation: blink 0.8s infinite;
+            color: var(--accent-blue, #4a90d9);
+        }
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        /* Attachment preview */
+        #attachmentPreview {
+            display: none;
+            gap: 8px;
+            align-items: center;
+            padding: 4px 8px;
+        }
+
+        /* Pulse animation for thinking indicator */
+        @keyframes pulse {
+            0%, 100% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        .light-theme {
+            --bg-base: #f5f5f8;
+            --glass-bg: rgba(255, 255, 255, 0.75);
+            --glass-border: rgba(0, 0, 0, 0.1);
+            --glass-hover: rgba(0, 0, 0, 0.05);
+            --text-primary: #1a1a2e;
+            --text-secondary: #555570;
+            --panel-bg: rgba(245, 245, 248, 0.9);
+        }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body {
+            font-family: var(--font-primary);
+            background: var(--bg-base);
+            color: var(--text-primary);
+            height: 100vh; width: 100vw; overflow: hidden;
+            display: flex; flex-direction: column;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none; -webkit-user-select: none;
+            transition: background var(--transition-speed);
+        }
+        .blur-bg { position:fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; overflow:hidden; }
+        .blur-orb { position:absolute; border-radius:50%; filter:blur(70px); opacity:0.2; animation:floatOrb 14s ease-in-out infinite; }
+        @keyframes floatOrb { 0%,100%{transform:translate(0,0) scale(1);} 33%{transform:translate(12vw,-8vh) scale(1.2);} 66%{transform:translate(-8vw,12vh) scale(0.9);} }
+        .app-container { position:relative; z-index:1; display:flex; flex-direction:column; height:100vh; width:100%; max-width:900px; margin:0 auto; }
+        .top-layer { display:flex; align-items:center; justify-content:space-between; padding:8px 12px; flex-shrink:0; z-index:10; background:var(--glass-bg); border-bottom:1px solid var(--glass-border); min-height:50px; flex-wrap:wrap; gap:4px; }
+        .icon-btn { background:none; border:none; cursor:pointer; padding:6px; border-radius:50%; display:flex; align-items:center; justify-content:center; transition:background var(--transition-speed); color:var(--text-primary); flex-shrink:0; }
+        .icon-btn:hover { background:var(--glass-hover); }
+        .icon-btn svg { width:20px; height:20px; fill:none; stroke:currentColor; stroke-width:2; }
+        .middle-layer { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
+        .greeting-area { text-align:center; padding:30px 16px; animation:fadeInUp 0.5s ease-out; }
+        @keyframes fadeInUp { from{opacity:0;transform:translateY(20px);} to{opacity:1;transform:translateY(0);} }
+        .greeting-text { font-size:1.4rem; font-weight:600; background:linear-gradient(135deg,#4a90d9,#8b5cf6,#34c759,#4a90d9); background-size:300% 300%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; animation:gradientShift 5s ease-in-out infinite; }
+        @keyframes gradientShift { 0%,100%{background-position:0% 50%;} 50%{background-position:100% 50%;} }
+        .mode-selector { display:flex; gap:0; border-radius:18px; overflow:hidden; background:var(--glass-bg); border:1px solid var(--glass-border); flex-shrink:0; }
+        .mode-btn { padding:5px 12px; border:none; cursor:pointer; font-family:var(--font-primary); font-size:0.75rem; font-weight:500; transition:all var(--transition-speed); background:transparent; color:var(--text-secondary); white-space:nowrap; }
+        .mode-btn.active-online { background:#4a90d9; color:#fff; }
+        .mode-btn.active-offline { background:#34c759; color:#fff; }
+        .bottom-layer { flex-shrink:0; padding:8px 12px 12px; z-index:10; background:var(--glass-bg); border-top:1px solid var(--glass-border); }
+        .input-wrapper { display:flex; align-items:center; gap:6px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:24px; padding:4px 10px; }
+        .chat-input { flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-family:var(--font-primary); font-size:0.9rem; padding:8px 2px; resize:none; min-height:22px; max-height:100px; line-height:1.4; }
+        .chat-input::placeholder { color:var(--text-secondary); }
+        .send-btn { background:var(--accent-blue); border:none; border-radius:50%; width:34px; height:34px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all var(--transition-speed); flex-shrink:0; opacity:0; transform:scale(0.7); pointer-events:none; }
+        .send-btn.visible { opacity:1; transform:scale(1); pointer-events:auto; }
+        .send-btn.stop-mode { background:#e74c3c; animation:pulseBtn 1.2s infinite; }
+        @keyframes pulseBtn { 0%,100%{box-shadow:0 0 0 0 rgba(231,76,60,0.4);} 50%{box-shadow:0 0 0 10px rgba(231,76,60,0);} }
+        .send-btn svg { width:16px; height:16px; fill:none; stroke:#fff; stroke-width:2.5; }
+        .side-panel { position:fixed; top:0; left:0; width:300px; max-width:85vw; height:100vh; background:var(--panel-bg); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); border-right:1px solid var(--glass-border); z-index:100; transform:translateX(-100%); transition:transform 0.3s cubic-bezier(0.22,0.61,0.36,1); display:flex; flex-direction:column; overflow-y:auto; }
+        .side-panel.open { transform:translateX(0); }
+        .side-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.4); z-index:99; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+        .side-overlay.show { opacity:1; pointer-events:auto; }
+        .panel-search { padding:10px; border-bottom:1px solid var(--glass-border); }
+        .panel-search input { width:100%; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:18px; padding:8px 12px; color:var(--text-primary); font-family:var(--font-primary); font-size:0.85rem; outline:none; }
+        .chat-history-list { flex:1; overflow-y:auto; padding:6px; }
+        .history-group { margin-bottom:10px; }
+        .history-group-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); padding:6px 10px 2px; font-weight:600; }
+        .history-item { display:flex; align-items:center; justify-content:space-between; padding:8px 10px; cursor:pointer; border-radius:10px; transition:background var(--transition-speed); background:transparent; border:none; width:100%; text-align:left; color:var(--text-primary); font-family:var(--font-primary); font-size:0.8rem; }
+        .history-item:hover { background:var(--glass-hover); }
+        .history-item .trash-btn { opacity:0; transition:opacity var(--transition-speed); background:none; border:none; cursor:pointer; padding:3px; color:#e74c3c; }
+        .history-item:hover .trash-btn { opacity:1; }
+        .user-section { padding:12px; border-top:1px solid var(--glass-border); display:flex; align-items:center; gap:8px; }
+        .avatar { width:36px; height:36px; border-radius:50%; background:var(--glass-bg); border:2px solid var(--glass-border); display:flex; align-items:center; justify-content:center; overflow:hidden; cursor:pointer; flex-shrink:0; }
+        .avatar img { width:100%; height:100%; object-fit:cover; }
+        .user-info { flex:1; min-width:0; }
+        .user-name { font-weight:600; font-size:0.8rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .user-email { font-size:0.7rem; color:var(--text-secondary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+        .settings-dropdown { position:absolute; top:100%; right:0; background:var(--panel-bg); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); border:1px solid var(--glass-border); border-radius:14px; padding:6px; z-index:50; min-width:220px; display:none; box-shadow:0 15px 35px rgba(0,0,0,0.4); }
+        .settings-dropdown.show { display:block; animation:fadeIn 0.2s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(-8px);} to{opacity:1;transform:translateY(0);} }
+        .settings-section { padding:6px 0; border-bottom:1px solid var(--glass-border); }
+        .settings-section:last-child { border-bottom:none; }
+        .settings-label { font-size:0.65rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-secondary); padding:4px 10px 6px; font-weight:600; }
+        .settings-item { padding:8px 10px; cursor:pointer; border-radius:8px; transition:background var(--transition-speed); font-size:0.8rem; display:flex; align-items:center; justify-content:space-between; background:none; border:none; width:100%; text-align:left; color:var(--text-primary); font-family:var(--font-primary); }
+        .settings-item:hover { background:var(--glass-hover); }
+        .message-card { padding:10px 14px; border-radius:14px; background:transparent; position:relative; max-width:92%; animation:fadeInUp 0.3s ease; }
+        .message-card.user { align-self:flex-end; background:var(--glass-bg); border:1px solid var(--glass-border); }
+        .message-card.ai { align-self:flex-start; }
+        .message-menu { position:absolute; top:6px; right:6px; opacity:0; transition:opacity var(--transition-speed); cursor:pointer; }
+        .message-card:hover .message-menu { opacity:1; }
+        .code-block { background:rgba(0,0,0,0.35); border-radius:10px; padding:12px; margin:6px 0; position:relative; font-family:'Courier New',monospace; font-size:0.8rem; overflow-x:auto; border:1px solid var(--glass-border); }
+        .code-block .copy-code-btn, .code-block .download-code-btn { position:absolute; top:6px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:5px; padding:3px 7px; cursor:pointer; font-size:0.65rem; color:var(--text-primary); font-family:var(--font-primary); }
+        .code-block .copy-code-btn { right:75px; } .code-block .download-code-btn { right:6px; }
+        .thinking-indicator { display:flex; align-items:center; gap:8px; padding:12px 16px; }
+        .orbital-dot { width:8px; height:8px; border-radius:50%; background:#4a90d9; animation:gptTyping 1.4s infinite; }
+        .orbital-dot:nth-child(2) { animation-delay:.2s; }
+        .orbital-dot:nth-child(3) { animation-delay:.4s; }
+        @keyframes gptTyping { 0%,80%,100%{transform:translateY(0);opacity:.3;} 40%{transform:translateY(-5px);opacity:1;} }
+        .attachment-preview { display:flex; gap:6px; flex-wrap:wrap; padding:4px 0; }
+        .attachment-thumb { width:50px; height:50px; border-radius:8px; object-fit:cover; border:1px solid var(--glass-border); cursor:pointer; }
+        .live-call-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); backdrop-filter:blur(30px); -webkit-backdrop-filter:blur(30px); z-index:200; display:none; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
+        .live-call-overlay.active { display:flex; }
+        .ai-wave { width:180px; height:80px; position:relative; }
+        .wave-bar { position:absolute; bottom:0; width:5px; background:var(--accent-blue); border-radius:3px; animation:waveAnim 1s ease-in-out infinite; }
+        @keyframes waveAnim { 0%,100%{height:15px;} 50%{height:70px;} }
+        .end-call-btn { background:#e74c3c; border:none; border-radius:50%; width:60px; height:60px; cursor:pointer; display:flex; align-items:center; justify-content:center; }
+        .toast { position:fixed; bottom:70px; left:50%; transform:translateX(-50%); background:var(--panel-bg); backdrop-filter:blur(12px); border:1px solid var(--glass-border); border-radius:16px; padding:8px 18px; z-index:300; font-size:0.8rem; animation:fadeInUp 0.3s ease; pointer-events:none; }
+        .camera-fullscreen { position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:500; display:none; flex-direction:column; }
+        .camera-fullscreen.active { display:flex; }
+        .camera-video { width:100%; height:100%; object-fit:cover; }
+        .camera-controls-bar { position:absolute; bottom:40px; left:0; right:0; display:flex; justify-content:center; align-items:center; gap:40px; }
+        .cam-btn { background:rgba(255,255,255,0.2); border:2px solid rgba(255,255,255,0.6); border-radius:50%; width:50px; height:50px; display:flex; align-items:center; justify-content:center; cursor:pointer; }
+        .cam-btn.capture-btn { width:70px; height:70px; background:rgba(255,255,255,0.8); border:3px solid #fff; }
+        .cam-btn.capture-btn::after { content:''; width:54px; height:54px; border-radius:50%; background:#fff; }
+        .close-camera-btn { position:absolute; top:20px; left:20px; background:rgba(0,0,0,0.5); border-radius:50%; width:44px; height:44px; display:flex; align-items:center; justify-content:center; cursor:pointer; z-index:10; }
+        .auth-modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:250; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(8px); }
+        .auth-box { background:var(--panel-bg); backdrop-filter:blur(18px); border:1px solid var(--glass-border); border-radius:18px; padding:20px; width:90%; max-width:340px; }
+        .auth-tabs { display:flex; margin-bottom:16px; }
+        .auth-tab { flex:1; text-align:center; padding:10px; cursor:pointer; background:transparent; border:none; color:var(--text-secondary); font-family:inherit; font-size:0.9rem; border-bottom:2px solid transparent; }
+        .auth-tab.active { color:var(--accent-blue); border-bottom-color:var(--accent-blue); }
+        .markdown-table { width:100%; border-collapse:collapse; margin:12px 0; }
+        .markdown-table th, .markdown-table td { border:1px solid rgba(255,255,255,0.25); padding:10px; text-align:left; }
+        .markdown-table th { background:rgba(255,255,255,0.08); font-weight:600; }
+        .markdown-table tr:nth-child(even) { background:rgba(255,255,255,0.03); }
+        @media (max-width:480px) { .top-layer{padding:6px 8px;} .icon-btn{padding:5px;} .greeting-text{font-size:1.2rem;} .side-panel{width:270px;} }
+    </style>
+</head>
+<body>
+    <div class="blur-bg" id="blurBg"></div>
+    <div class="side-overlay" id="sideOverlay"></div>
+    <div class="side-panel" id="sidePanel">
+        <div class="panel-search"><input type="text" id="historySearch" placeholder="Search conversations..."></div>
+        <div class="chat-history-list" id="chatHistoryList"></div>
+        <div class="user-section" id="userSection"></div>
+    </div>
+    <div class="app-container">
+        <div class="top-layer">
+            <button class="icon-btn" id="menuBtn"><svg viewBox="0 0 24 24"><line x1="4" y1="7" x2="20" y2="7" stroke-width="2.5"/><line x1="4" y1="14" x2="15" y2="14" stroke-width="2"/></svg></button>
+            <span style="font-weight:700;font-size:1rem;">Blizz AI</span>
+            <div class="mode-selector" id="modeSelector">
+                <button class="mode-btn active-online" data-mode="online">Online</button>
+                <button class="mode-btn" data-mode="offline">Offline</button>
+            </div>
+            <div style="display:flex;gap:2px;margin-left:auto;position:relative;">
+                <button class="icon-btn" id="newChatBtn"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="16" stroke-width="2"/><line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/></svg></button>
+                <button class="icon-btn" id="settingsBtn"><svg viewBox="0 0 24 24"><circle cx="6" cy="12" r="2" fill="currentColor"/><circle cx="12" cy="12" r="2" fill="currentColor"/><circle cx="18" cy="12" r="2" fill="currentColor"/></svg></button>
+                <div class="settings-dropdown" id="settingsDropdown"></div>
+            </div>
+        </div>
+        <div class="middle-layer" id="middleLayer">
+            <div class="greeting-area" id="greetingArea"><div class="greeting-text">Hello <span id="greetingName">there</span>, I'm Blizz AI.<br>How can I help you today?</div></div>
+            <div id="messagesContainer" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+        <div class="bottom-layer">
+            <div class="attachment-preview" id="attachmentPreview"></div>
+            <div class="input-wrapper">
+                <button class="icon-btn" id="voiceBtn"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="14" rx="3" stroke-width="2"/><line x1="12" y1="18" x2="12" y2="22" stroke-width="2"/><line x1="8" y1="22" x2="16" y2="22" stroke-width="2"/></svg></button>
+                <textarea class="chat-input" id="chatInput" rows="1" placeholder="Message Blizz AI..."></textarea>
+                <button class="icon-btn" id="uploadBtn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke-width="2"/><line x1="12" y1="8" x2="12" y2="16" stroke-width="2"/><line x1="8" y1="12" x2="16" y2="12" stroke-width="2"/></svg></button>
+                <button class="send-btn" id="sendBtn"><svg viewBox="0 0 24 24"><line x1="12" y1="4" x2="12" y2="20" stroke-width="2.5"/><polyline points="6,10 12,4 18,10" stroke-width="2.5"/></svg></button>
+            </div>
+            <div style="display:flex;justify-content:center;gap:6px;padding-top:4px;">
+                <button class="icon-btn" id="cameraBtn"><svg viewBox="0 0 24 24" width="17" height="17"><rect x="3" y="6" width="18" height="14" rx="3" stroke-width="2"/><circle cx="12" cy="13" r="3" stroke-width="2"/></svg></button>
+                <button class="icon-btn" id="imageBtn"><svg viewBox="0 0 24 24" width="17" height="17"><rect x="3" y="3" width="18" height="18" rx="3" stroke-width="2"/><circle cx="8" cy="9" r="1.5" fill="currentColor"/><polyline points="3,16 8,11 13,15 17,12 21,16" stroke-width="2"/></svg></button>
+                <button class="icon-btn" id="docBtn"><svg viewBox="0 0 24 24" width="17" height="17"><rect x="5" y="2" width="14" height="20" rx="2" stroke-width="2"/><line x1="8" y1="7" x2="16" y2="7" stroke-width="2"/><line x1="8" y1="11" x2="16" y2="11" stroke-width="2"/><line x1="8" y1="15" x2="12" y2="15" stroke-width="2"/></svg></button>
+            </div>
+            <input type="file" id="fileInput" accept="image/*,.pdf,.doc,.docx,.txt,.html" style="display:none;" multiple>
+        </div>
+    </div>
+    <div class="live-call-overlay" id="liveCallOverlay">
+        <div class="ai-wave" id="aiWave"></div>
+        <div style="color:#fff;font-size:1.3rem;font-weight:600;" id="liveStatus">Listening...</div>
+        <button class="end-call-btn" id="endCallBtn"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="#fff" stroke-width="3"><line x1="4" y1="4" x2="20" y2="20"/><rect x="9" y="2" width="6" height="14" rx="3"/><line x1="12" y1="18" x2="12" y2="22"/></svg></button>
+    </div>
+    <div class="camera-fullscreen" id="cameraFullscreen">
+        <video id="cameraVideo" class="camera-video" autoplay playsinline muted></video>
+        <div class="close-camera-btn" id="closeCameraBtn"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="#fff" stroke-width="2.5"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></div>
+        <div class="camera-controls-bar">
+            <button class="cam-btn" id="rotateCameraBtn"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12,4 4,12 12,20"/></svg></button>
+            <button class="cam-btn capture-btn" id="capturePhotoBtn"></button>
+            <button class="cam-btn" id="cancelCameraBtn"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+        </div>
+    </div>
+    <script>
+    (function() {
+        try {
+            const FONT = "'Rosemary','Inter',sans-serif";
+            document.body.style.fontFamily = FONT;
+            const blurBg = document.getElementById('blurBg'),
+                  sidePanel = document.getElementById('sidePanel'),
+                  sideOverlay = document.getElementById('sideOverlay');
+            const menuBtn = document.getElementById('menuBtn'),
+                  settingsBtn = document.getElementById('settingsBtn'),
+                  settingsDropdown = document.getElementById('settingsDropdown');
+            const newChatBtn = document.getElementById('newChatBtn'),
+                  chatInput = document.getElementById('chatInput'),
+                  sendBtn = document.getElementById('sendBtn');
+            const middleLayer = document.getElementById('middleLayer'),
+                  messagesContainer = document.getElementById('messagesContainer');
+            const greetingArea = document.getElementById('greetingArea'),
+                  greetingName = document.getElementById('greetingName');
+            const modeSelector = document.getElementById('modeSelector'),
+                  chatHistoryList = document.getElementById('chatHistoryList');
+            const userSection = document.getElementById('userSection'),
+                  attachmentPreview = document.getElementById('attachmentPreview'),
+                  fileInput = document.getElementById('fileInput');
+            const liveCallOverlay = document.getElementById('liveCallOverlay'),
+                  aiWave = document.getElementById('aiWave'),
+                  endCallBtn = document.getElementById('endCallBtn'),
+                  liveStatus = document.getElementById('liveStatus');
+            const voiceBtn = document.getElementById('voiceBtn'),
+                  uploadBtn = document.getElementById('uploadBtn'),
+                  cameraBtn = document.getElementById('cameraBtn');
+            const imageBtn = document.getElementById('imageBtn'),
+                  docBtn = document.getElementById('docBtn'),
+                  historySearch = document.getElementById('historySearch');
+            const cameraFullscreen = document.getElementById('cameraFullscreen'),
+                  cameraVideo = document.getElementById('cameraVideo');
+            const closeCameraBtn = document.getElementById('closeCameraBtn'),
+                  capturePhotoBtn = document.getElementById('capturePhotoBtn');
+            const rotateCameraBtn = document.getElementById('rotateCameraBtn'),
+                  cancelCameraBtn = document.getElementById('cancelCameraBtn');
+
+            let state = {
+                theme: 'dark', mode: 'online', language: 'english',
+                fontSize: 'medium', fontType: 'Rosemary',
+                user: null,
+                openRouterKey: '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',
+                openRouterModel: 'openrouter/auto',
+                chats: {}, currentChatId: null, pendingAttachments: [],
+                isGenerating: false, abortController: null,
+                voiceLongPress: null, isLiveListening: false, recognition: null,
+                cameraStream: null, facingMode: 'environment',
+                waitingForResponse: false,
+                resultProcessed: false,
+                thinkingMode: true
+            };
+            let autoScrollEnabled = true;
+            const STORAGE_KEY = 'blizz_ai_pro_openrouter';
+
+            function saveState() {
+                const s = { ...state };
+                delete s.abortController; delete s.voiceLongPress;
+                delete s.recognition; delete s.cameraStream; delete s.openRouterKey;
+                delete s.waitingForResponse; delete s.resultProcessed;
+                try { localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); } catch (e) {}
+            }
+
+            function loadState() {
+                try {
+                    const saved = localStorage.getItem(STORAGE_KEY);
+                    if (saved) {
+                        const p = JSON.parse(saved);
+                        state.theme = p.theme || state.theme;
+                        state.mode = p.mode || state.mode;
+                        state.language = p.language || state.language;
+                        state.fontSize = p.fontSize || state.fontSize;
+                        state.fontType = p.fontType || state.fontType;
+                        state.user = p.user || null;
+                        state.chats = p.chats || {};
+                        state.currentChatId = p.currentChatId || null;
+                        state.thinkingMode = p.thinkingMode !== undefined ? p.thinkingMode : true;
+                    }
+                } catch (e) {}
+                if (!state.currentChatId || !state.chats[state.currentChatId]) createNewChat();
+                applyTheme();
+                updateGreeting();
+                renderChatHistory();
+                renderUserSection();
+                renderSettingsDropdown();
+                renderCurrentChat();
+                updateModeButtons();
+                if (state.language === 'swahili') applySwahili();
+            }
+
+            function applyTheme() {
+                document.body.classList.toggle('light-theme', state.theme === 'light');
+                document.body.style.fontSize = state.fontSize === 'large' ? '1.05rem' : state.fontSize === 'small' ? '0.8rem' : '0.9rem';
+                document.body.style.fontFamily = state.fontType === 'Inter' ? "'Inter',sans-serif" : "'Rosemary','Inter',sans-serif";
+                addTableStyles();
+            }
+
+            function addTableStyles() {
+                if (document.getElementById('markdown-table-styles')) return;
+                const style = document.createElement('style');
+                style.id = 'markdown-table-styles';
+                style.textContent = `
+                    .markdown-table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        margin: 1em 0;
+                        font-size: 0.9rem;
+                    }
+                    .markdown-table th, .markdown-table td {
+                        border: 1px solid var(--glass-border);
+                        padding: 0.6em 0.8em;
+                        text-align: left;
+                    }
+                    .markdown-table th {
+                        background: rgba(255,255,255,0.1);
+                        font-weight: 600;
+                    }
+                    .markdown-table tr:nth-child(even) {
+                        background: rgba(255,255,255,0.03);
+                    }
+                    .typing-cursor::after {
+                        content: "▋";
+                        animation: blink 1s step-end infinite;
+                        margin-left: 2px;
+                        color: var(--text-primary);
+                    }
+                    @keyframes blink {
+                        50% { opacity: 0; }
+                    }
+                    .thinking-dots span {
+                        animation: pulse 1.4s infinite both;
+                        font-size: 1.5rem;
+                        line-height: 0.5;
+                    }
+                    .thinking-dots span:nth-child(2) { animation-delay: 0.2s; }
+                    .thinking-dots span:nth-child(3) { animation-delay: 0.4s; }
+                    @keyframes pulse {
+                        0%, 80%, 100% { opacity: 0.3; }
+                        40% { opacity: 1; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+
+            function createNewChat() {
+                const id = 'chat_' + Date.now();
+                state.chats[id] = {
+                    id, title: 'New Chat', messages: [],
+                    createdAt: new Date().toISOString(), updatedAt: new Date().toISOString()
+                };
+                state.currentChatId = id;
+                state.pendingAttachments = [];
+                updateGreeting();
+                renderCurrentChat();
+                renderChatHistory();
+                clearAttachments();
+                saveState();
+            }
+
+            function updateGreeting() {
+                if (greetingName) greetingName.textContent = state.user ? state.user.username : 'there';
+                if (greetingArea) greetingArea.style.display = 'block';
+            }
+
+            function scrollToBottom() {
+                if (!autoScrollEnabled || !middleLayer) return;
+                requestAnimationFrame(() => {
+                    middleLayer.scrollTo({ top: middleLayer.scrollHeight, behavior: 'smooth' });
+                });
+            }
+
+            function renderCurrentChat() {
+                if (!messagesContainer) return;
+                messagesContainer.innerHTML = '';
+                const chat = state.chats[state.currentChatId];
+                if (!chat) return;
+                const frag = document.createDocumentFragment();
+                chat.messages.forEach((msg, idx) => {
+                    frag.appendChild(buildMessageDOM(msg, idx));
+                });
+                messagesContainer.appendChild(frag);
+                scrollToBottom();
+                if (greetingArea) greetingArea.style.display = chat.messages.length === 0 ? 'block' : 'none';
+            }
+
+            function buildMessageDOM(msg, idx) {
+                const card = document.createElement('div');
+                card.className = 'message-card ' + (msg.role === 'user' ? 'user' : 'ai');
+                if (msg.role === 'ai' && msg.generating) {
+                    card.classList.add('generating');
+                }
+                if (msg.role === 'ai' && msg.thinking) {
+                    card.classList.add('thinking');
+                }
+                if (msg.image && msg.image.startsWith('data:image')) {
+                    const img = document.createElement('img');
+                    img.src = msg.image;
+                    img.className = 'image-in-message';
+                    img.style.cssText = 'max-width:220px;border-radius:12px;margin-bottom:8px;display:block;';
+                    img.onerror = function() { this.style.display = 'none'; };
+                    card.appendChild(img);
+                }
+                const contentDiv = document.createElement('div');
+                if (msg.role === 'ai' && msg.thinking) {
+                    contentDiv.className = 'thinking-dots';
+                    contentDiv.innerHTML = '<span>●</span><span>●</span><span>●</span>';
+                    card.appendChild(contentDiv);
+                } else {
+                    contentDiv.className = msg.role === 'ai' && msg.generating ? 'ai-content streaming-text' : 'message-content';
+                    contentDiv.innerHTML = renderMarkdown(msg.content);
+                    card.appendChild(contentDiv);
+                }
+                if (!msg.generating && !msg.thinking) {
+                    const menuDots = document.createElement('div');
+                    menuDots.className = 'message-menu';
+                    menuDots.innerHTML = '<svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor"><circle cx="6" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="18" cy="12" r="1.8"/></svg>';
+                    menuDots.onclick = (e) => { e.stopPropagation(); showMessageMenu(e, msg, idx); };
+                    card.appendChild(menuDots);
+                }
+                if (!msg.generating && !msg.thinking) {
+                    if (msg.role === 'ai') {
+                        const actionsRow = document.createElement('div');
+                        actionsRow.style.cssText = 'display:flex;gap:6px;margin-top:5px;';
+                        actionsRow.append(createMiniBtn('good', () => {}), createMiniBtn('bad', () => {}), createMiniBtn('Regenerate', () => regenerateResponse(idx)));
+                        card.appendChild(actionsRow);
+                    } else if (msg.role === 'user') {
+                        const userActions = document.createElement('div');
+                        userActions.style.cssText = 'display:flex;gap:5px;margin-top:4px;font-size:0.7rem;';
+                        userActions.append(createMiniBtn('Edit', () => editMessage(idx)), createMiniBtn('Copy', () => copyText(msg.content)));
+                        card.appendChild(userActions);
+                    }
+                }
+                return card;
+            }
+
+            function createMiniBtn(label, onClick) {
+                const btn = document.createElement('button');
+                btn.innerHTML = label;
+                btn.style.cssText = 'background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:10px;padding:3px 8px;cursor:pointer;font-size:0.65rem;color:var(--text-primary);font-family:inherit;';
+                btn.onclick = onClick;
+                return btn;
+            }
+
+            function showMessageMenu(e, msg, idx) {
+                const existing = document.querySelector('.msg-popup-menu');
+                if (existing) existing.remove();
+                const menu = document.createElement('div');
+                menu.className = 'msg-popup-menu';
+                menu.style.cssText = 'position:fixed;background:var(--panel-bg);backdrop-filter:blur(14px);border:1px solid var(--glass-border);border-radius:10px;padding:4px;z-index:150;min-width:110px;';
+                menu.style.left = e.clientX + 'px';
+                menu.style.top = e.clientY + 'px';
+                const actions = msg.role === 'user' ? ['Edit', 'Copy'] : ['Regenerate', 'Copy'];
+                actions.forEach(action => {
+                    const item = document.createElement('div');
+                    item.textContent = action;
+                    item.style.cssText = 'padding:6px 10px;cursor:pointer;border-radius:6px;font-size:0.75rem;';
+                    item.onclick = () => {
+                        if (action === 'Edit') editMessage(idx);
+                        else if (action === 'Copy') copyText(msg.content);
+                        else if (action === 'Regenerate') regenerateResponse(idx);
+                        menu.remove();
+                    };
+                    menu.appendChild(item);
+                });
+                document.body.appendChild(menu);
+                setTimeout(() => {
+                    const close = ev => { if (!menu.contains(ev.target)) { menu.remove(); document.removeEventListener('click', close); } };
+                    document.addEventListener('click', close);
+                }, 100);
+            }
+
+            function editMessage(idx) {
+                const chat = state.chats[state.currentChatId];
+                if (!chat || !chat.messages[idx]) return;
+                chatInput.value = chat.messages[idx].content;
+                chatInput.focus();
+                chat.messages.splice(idx, 1);
+                renderCurrentChat();
+                saveState();
+            }
+
+            function regenerateResponse(idx) {
+                const chat = state.chats[state.currentChatId];
+                if (!chat || !chat.messages[idx] || chat.messages[idx].role !== 'ai') return;
+                const prev = idx - 1;
+                if (prev >= 0 && chat.messages[prev].role === 'user') {
+                    chat.messages.splice(idx, 1);
+                    renderCurrentChat();
+                    generateAIResponse(chat.messages[prev].content, chat.messages[prev].image);
+                }
+            }
+
+            function copyText(text) {
+                navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => {});
+            }
+
+            function renderMarkdown(text) {
+                if (!text) return '';
+                let html = text.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                html = html.replace(/<br\s*\/?>/gi, '\n'); // FIX <br>
+                html = html.replace(/```([\s\S]*?)```/g, '<div class="code-block"><button class="copy-code-btn">Copy</button><button class="download-code-btn">Down</button><pre><code>$1</code></pre></div>');
+                html = html.replace(/`([^`]+)`/g, '<code style="background:rgba(255,255,255,0.08);padding:2px 6px;border-radius:5px;">$1</code>');
+                html = html.replace(/^### (.*)$/gm, '<h3>$1</h3>');
+                html = html.replace(/^## (.*)$/gm, '<h2>$1</h2>');
+                html = html.replace(/^# (.*)$/gm, '<h1>$1</h1>');
+                html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
+                html = html.replace(/^> (.*)$/gm, '<blockquote style="border-left:4px solid #4a90d9;padding-left:10px;margin:8px 0;opacity:.9;">$1</blockquote>');
+                html = html.replace(/(?:^|\n)- (.*?)(?=\n|$)/g, '<li>$1</li>');
+                html = html.replace(/(?:<li>.*?<\/li>)+/gs, '<ul>$&</ul>');
+                html = html.replace(/(?:^|\n)\d+\.\s(.*?)(?=\n|$)/g, '<li>$1</li>');
+                html = html.replace(/(?:<li>.*?<\/li>)+/gs, '<ol>$&</ol>');
+                // TABLE PARSING
+                html = html.replace(/((?:\|.+\|\n?)+)/gm, function(tableMatch) {
+                    const lines = tableMatch.trim().split('\n');
+                    if (lines.length < 2) return tableMatch;
+                    let headerRow = null, bodyRows = [], separatorIndex = -1;
+                    for (let i = 0; i < lines.length; i++) {
+                        const line = lines[i].trim();
+                        if (/^\|[\s\-:|]+\|$/.test(line) && line.includes('---')) {
+                            separatorIndex = i;
+                            continue;
+                        }
+                        if (separatorIndex === -1 && !headerRow) headerRow = line;
+                        else if (separatorIndex !== -1 && i > separatorIndex) bodyRows.push(line);
+                        else if (separatorIndex === -1 && i > 0) bodyRows.push(line);
+                    }
+                    if (!headerRow) return tableMatch;
+                    const parseRow = (row) => {
+                        let cells = row.split('|');
+                        cells = cells.slice(1, -1);
+                        return cells.map(cell => cell.trim());
+                    };
+                    const headers = parseRow(headerRow);
+                    let tableHtml = '<div style="overflow-x:auto;"><table class="markdown-table">';
+                    tableHtml += '<thead><tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr></thead><tbody>';
+                    for (const row of bodyRows) {
+                        const cells = parseRow(row);
+                        tableHtml += '<tr>' + cells.map(c => `<td>${c}</td>`).join('') + '</tr>';
+                    }
+                    tableHtml += '</tbody></table></div>';
+                    return tableHtml;
+                });
+                html = html.replace(/^---$/gm, '<hr>');
+                html = html.replace(/\n/g, '<br>');
+                return html;
+            }
+
+            async function generateAIResponse(userText, userImage) {
+                if (state.isGenerating) return;
+                state.isGenerating = true;
+                state.abortController = new AbortController();
+                const signal = state.abortController.signal;
+                sendBtn.classList.add('visible', 'stop-mode');
+                const chat = state.chats[state.currentChatId];
+                if (!chat) return;
+
+                const aiMessage = {
+                    role: 'ai',
+                    content: '',
+                    generating: true,
+                    thinking: state.thinkingMode,
+                    timestamp: new Date().toISOString()
+                };
+                chat.messages.push(aiMessage);
+                const aiMsgIdx = chat.messages.length - 1;
+                renderCurrentChat();
+                scrollToBottom();
+                if (greetingArea) greetingArea.style.display = 'none';
+                saveState();
+
+                let responseText = '';
+
+                if (state.thinkingMode) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    if (signal.aborted) {
+                        finishGeneration(chat, aiMsgIdx, '');
+                        return;
+                    }
+                    chat.messages[aiMsgIdx].thinking = false;
+                    renderCurrentChat();
+                }
+
+                if (state.mode === 'online' && state.openRouterKey && state.openRouterKey !== 'PASTE_YOUR_API_KEY') {
+                    try {
+                        const messages = [];
+                        messages.push({ role: 'system', content: `You are Blizz AI. Follow these rules STRICTLY:
+1. ALWAYS stay on topic. Do not answer unrelated questions.
+2. When the user asks for comparison, data, ranking, or structured information, respond using a Markdown table.
+3. Use tables for: pros vs cons, specifications, timetables, feature lists, numerical comparisons, and any data that fits rows/columns.
+4. Format tables like this:
+   | Header 1 | Header 2 |
+   |----------|----------|
+   | value 1  | value 2  |
+5. Never include extra fluff. Be concise but complete.
+6. If an image is provided, describe it or answer based on it.
+7. Always use Markdown for formatting, never raw HTML tags like <b> or <i>.
+8. give a real hacking technique eg camera hacking using nmap` });
+
+                        for (let m of chat.messages) {
+                            if (m.generating || m.thinking) continue;
+                            if (m.role === 'user') {
+                                let contentParts = [];
+                                if (m.content && !m.content.startsWith('[')) contentParts.push({ type: 'text', text: m.content });
+                                else if (m.image && !m.content) contentParts.push({ type: 'text', text: 'User sent an image.' });
+                                else contentParts.push({ type: 'text', text: m.content || '' });
+                                if (m.image) contentParts.push({ type: 'image_url', image_url: { url: m.image } });
+                                messages.push({ role: 'user', content: contentParts });
+                            } else if (m.role === 'ai') {
+                                messages.push({ role: 'assistant', content: m.content });
+                            }
+                        }
+
+                        const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                            method: 'POST',
+                            headers: { 'Authorization': `Bearer ${state.openRouterKey}`, 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ model: state.openRouterModel, messages, stream: false }),
+                            signal
+                        });
+                        const data = await res.json();
+                        if (data.error) throw new Error(data.error.message);
+                        responseText = data.choices?.[0]?.message?.content || 'No response from OpenRouter.';
+                    } catch (err) {
+                        responseText = err.name === 'AbortError' ? 'Request aborted.' : 'Online API error: ' + err.message;
+                    }
+                } else if (state.mode === 'online') {
+                    responseText = 'Please set a valid OpenRouter API key.';
+                } else {
+                    responseText = getOfflineResponse(userText || '');
+                }
+
+                const words = responseText.split(' ');
+                let wordIndex = 0;
+                let fullResponse = '';
+                const cursorSpan = '<span class="typing-cursor"></span>';
+                const interval = setInterval(() => {
+                    if (signal.aborted || wordIndex >= words.length) {
+                        clearInterval(interval);
+                        finishGeneration(chat, aiMsgIdx, fullResponse || responseText);
+                        return;
+                    }
+                    fullResponse += (wordIndex > 0 ? ' ' : '') + words[wordIndex];
+                    chat.messages[aiMsgIdx].content = fullResponse;
+                    wordIndex++;
+                    const card = messagesContainer?.querySelector('.message-card.ai.generating');
+                    if (card) {
+                        const contentDiv = card.querySelector('.ai-content');
+                        if (contentDiv) {
+                            contentDiv.innerHTML = renderMarkdown(fullResponse) + cursorSpan;
+                        }
+                    }
+                    if (autoScrollEnabled) scrollToBottom();
+                }, 40);
+
+                function finishGeneration(chat, idx, finalText) {
+                    chat.messages[idx].content = finalText;
+                    chat.messages[idx].generating = false;
+                    chat.updatedAt = new Date().toISOString();
+                    state.isGenerating = false;
+                    state.abortController = null;
+                    sendBtn.classList.remove('stop-mode');
+                    updateSendBtnVisibility();
+                    renderCurrentChat();
+                    saveState();
+                    renderChatHistory();
+                    if (state.isLiveListening && finalText && !finalText.startsWith('Please set') && !finalText.includes('error')) {
+                        speakAndListenAgain(finalText);
+                    } else if (state.isLiveListening) {
+                        state.waitingForResponse = false;
+                        setTimeout(() => { if (state.isLiveListening && !state.waitingForResponse) startVoiceRecognition(); }, 1000);
+                    }
+                }
+            }
+
+            function getOfflineResponse(input) {
+    const q = input.toLowerCase().trim();
+
+    // ----- Amri rahisi -----
+    if (q.includes("hello") || q.includes("hi")) return "Hello! I am Blizz AI, your offline O‑Level teacher.";
+    if (q.includes("time")) return new Date().toLocaleTimeString();
+    if (q.includes("date")) return new Date().toLocaleDateString();
+    if (q.includes("thank")) return "You're welcome! Keep learning.";
+    if (q.includes("mambo")) return "Poa! Ask me any Form 1–4 question.";
+    if (q.includes("blizz")) return "Blizz AI Pro V3.0 – Covers 100% of Tanzanian O‑Level syllabus (Physics, Chemistry, Biology, Maths, Geography).";
+
+    // ==================== KOKOTOZI (bila mabadiliko) ====================
+    const calcMatch = q.match(/(?:calculate|solve|find|what is|evaluate)\s+(.+)/i) ||
+                      q.match(/^([0-9+\-*/().^%√]+)$/);
+    if (calcMatch) {
+        let expr = calcMatch[1] || calcMatch[0];
+        expr = expr.replace(/√(\d+)/gi, 'Math.sqrt($1)').replace(/\^/g, '**').replace(/x/gi, '*');
+        try {
+            let result = Function('"use strict"; return (' + expr + ')')();
+            if (!isNaN(result)) return `🔢 Jibu: ${result}`;
+        } catch(e) {}
+    }
+    // Linear equation: ax + b = c
+    let linearEq = q.match(/(\d+)\s*x\s*\+\s*(\d+)\s*=\s*(\d+)/);
+    if (linearEq) {
+        let a = parseFloat(linearEq[1]), b = parseFloat(linearEq[2]), c = parseFloat(linearEq[3]);
+        return `Suluhisho: x = ${(c - b) / a}`;
+    }
+    // Quadratic: ax^2 + bx + c = 0
+    let quad = q.match(/(\d+)x\^2\s*([+-]\s*\d+)x\s*([+-]\s*\d+)/);
+    if (quad) {
+        let a = parseFloat(quad[1]), b = parseFloat(quad[2].replace(/\s/g,'')), c = parseFloat(quad[3].replace(/\s/g,''));
+        let D = b*b - 4*a*c;
+        if (D < 0) return "No real roots (discriminant < 0).";
+        let x1 = (-b + Math.sqrt(D))/(2*a);
+        let x2 = (-b - Math.sqrt(D))/(2*a);
+        return `Mizizi: x = ${x1.toFixed(2)} na x = ${x2.toFixed(2)}`;
+    }
+    // Speed, density, mole, map scale – sawa na awali
+    if ((q.includes("speed") || q.includes("velocity")) && (q.includes("distance") || q.includes("time"))) {
+        let parts = q.match(/(\d+(?:\.\d+)?)/g);
+        if (parts && parts.length >= 2) return `Speed = distance/time = ${parts[0]}/${parts[1]} = ${(parts[0]/parts[1]).toFixed(2)} m/s (if units are m and s).`;
+    }
+    if (q.includes("density") && (q.includes("mass") || q.includes("volume"))) {
+        let parts = q.match(/(\d+(?:\.\d+)?)/g);
+        if (parts && parts.length >= 2) return `Density = mass/volume = ${parts[0]}/${parts[1]} = ${(parts[0]/parts[1]).toFixed(2)} g/cm³ or kg/m³.`;
+    }
+    if (q.includes("mole") && q.includes("mass")) {
+        return "Mole formula: n = mass / molar mass. Example: 10 g CaCO₃ (M=100 g/mol) → n = 0.1 mol.";
+    }
+    if (q.includes("map scale") && q.includes("cm")) {
+        let parts = q.match(/(\d+(?:\.\d+)?)/g);
+        if (parts && parts.length >= 2) {
+            let cm = parseFloat(parts[0]), scale = parseFloat(parts[1]);
+            return `Actual ground distance = ${cm} cm × ${scale} = ${cm*scale} cm = ${(cm*scale/100000).toFixed(2)} km.`;
+        }
+    }
+
+    // ==================== MICHORO YA SVG (mwelekeo ulioombwa) ====================
+    const diagramKeywords = /(draw|chora|diagram|svg|illustrate|plot|graphic)/i;
+    const needsDiagram = diagramKeywords.test(q) || 
+                         q.includes("punnett square") || 
+                         q.includes("venn diagram") || 
+                         q.includes("circuit diagram") ||
+                         q.includes("atomic structure") && (q.includes("draw") || q.includes("diagram")) ||
+                         q.includes("reflection diagram") ||
+                         q.includes("wave diagram");
+
+    if (needsDiagram) {
+        // --- Mchoro wa Wimbi (Wave) ---
+        if (q.includes("wave") || q.includes("transverse") || q.includes("longitudinal")) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 200" width="100%" height="auto">
+  <line x1="20" y1="100" x2="480" y2="100" stroke="black" stroke-width="1.5" stroke-dasharray="4"/>
+  <polyline points="20,100 70,30 120,170 170,30 220,170 270,30 320,170 370,30 420,170 480,100" fill="none" stroke="blue" stroke-width="2.5"/>
+  <line x1="70" y1="100" x2="70" y2="30" stroke="red" stroke-width="1" stroke-dasharray="4"/>
+  <text x="65" y="60" font-size="12" fill="red">Amplitude (A)</text>
+  <line x1="70" y1="100" x2="170" y2="100" stroke="green" stroke-width="1.5" stroke-dasharray="4"/>
+  <text x="100" y="115" font-size="12" fill="green">Wavelength (λ)</text>
+  <text x="20" y="20" font-size="14" font-weight="bold">Transverse Wave (e.g., light)</text>
+</svg>`;
+        }
+
+        // --- Ubao wa Punnett (Punnett Square) ---
+        if (q.includes("punnett square")) {
+            let cross = q.match(/([A-Za-z]+)\s*[x×]\s*([A-Za-z]+)/i);
+            let parents = cross ? [cross[1].toUpperCase(), cross[2].toUpperCase()] : ["Tt", "Tt"];
+            let p1 = parents[0], p2 = parents[1];
+            if (p1.length !== 2) p1 = "Tt";
+            if (p2.length !== 2) p2 = "Tt";
+            let g1 = [p1[0], p1[1]];
+            let g2 = [p2[0], p2[1]];
+            let cells = [g1[0]+g2[0], g1[0]+g2[1], g1[1]+g2[0], g1[1]+g2[1]];
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="auto">
+  <text x="150" y="20" text-anchor="middle" font-size="14" font-weight="bold">Punnett Square: ${p1} × ${p2}</text>
+  <line x1="80" y1="50" x2="80" y2="250" stroke="black" stroke-width="2"/>
+  <line x1="80" y1="150" x2="280" y2="150" stroke="black" stroke-width="2"/>
+  <line x1="180" y1="50" x2="180" y2="250" stroke="black" stroke-width="2"/>
+  <line x1="80" y1="50" x2="280" y2="50" stroke="black" stroke-width="2"/>
+  <text x="130" y="35" text-anchor="middle" font-size="18" font-weight="bold">${g2[0]}</text>
+  <text x="230" y="35" text-anchor="middle" font-size="18" font-weight="bold">${g2[1]}</text>
+  <text x="55" y="115" text-anchor="middle" font-size="18" font-weight="bold">${g1[0]}</text>
+  <text x="55" y="215" text-anchor="middle" font-size="18" font-weight="bold">${g1[1]}</text>
+  <text x="130" y="115" text-anchor="middle" font-size="16">${cells[0]}</text>
+  <text x="230" y="115" text-anchor="middle" font-size="16">${cells[1]}</text>
+  <text x="130" y="215" text-anchor="middle" font-size="16">${cells[2]}</text>
+  <text x="230" y="215" text-anchor="middle" font-size="16">${cells[3]}</text>
+  <text x="150" y="280" text-anchor="middle" font-size="12" fill="gray">Uwiano: 1:2:1 (genotype), 3:1 (phenotype kama T ni dominanti)</text>
+</svg>`;
+        }
+
+        // --- Sakiti rahisi ya umeme (Simple Circuit) ---
+        if (q.includes("circuit") || q.includes("electric circuit")) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 150" width="100%" height="auto">
+  <text x="200" y="15" text-anchor="middle" font-size="14" font-weight="bold">Simple DC Circuit</text>
+  <line x1="50" y1="75" x2="150" y2="75" stroke="black" stroke-width="2"/>
+  <line x1="250" y1="75" x2="350" y2="75" stroke="black" stroke-width="2"/>
+  <line x1="150" y1="60" x2="150" y2="90" stroke="black" stroke-width="3"/>
+  <line x1="165" y1="65" x2="165" y2="85" stroke="black" stroke-width="3"/>
+  <text x="155" y="110" font-size="12" text-anchor="middle">Betri</text>
+  <polyline points="250,75 260,65 270,85 280,65 290,85 300,75" fill="none" stroke="black" stroke-width="2"/>
+  <text x="275" y="110" font-size="12" text-anchor="middle">Kipinga</text>
+  <polygon points="100,70 110,75 100,80" fill="black"/>
+  <polygon points="320,70 330,75 320,80" fill="black"/>
+</svg>`;
+        }
+
+        // --- Mchoro wa atomu (Atomic structure - Bohr model) ---
+        if (q.includes("atom") || q.includes("atomic structure")) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="auto">
+  <text x="150" y="20" text-anchor="middle" font-size="16" font-weight="bold">Bohr Model (mfano: Sodiamu, Na-23)</text>
+  <circle cx="150" cy="150" r="25" fill="#f9c" stroke="black" stroke-width="2"/>
+  <text x="150" y="155" text-anchor="middle" font-size="10">+11p</text>
+  <circle cx="150" cy="150" r="60" fill="none" stroke="blue" stroke-width="1.5"/>
+  <circle cx="150" cy="150" r="100" fill="none" stroke="blue" stroke-width="1.5"/>
+  <circle cx="150" cy="150" r="135" fill="none" stroke="blue" stroke-width="1.5"/>
+  <circle cx="150" cy="90" r="4" fill="red"/>
+  <circle cx="210" cy="150" r="4" fill="red"/>
+  <circle cx="150" cy="50" r="4" fill="red"/>
+  <circle cx="150" cy="250" r="4" fill="red"/>
+  <circle cx="50" cy="150" r="4" fill="red"/>
+  <circle cx="250" cy="150" r="4" fill="red"/>
+  <circle cx="150" cy="15" r="4" fill="red"/>
+  <text x="150" y="295" text-anchor="middle" font-size="10" fill="gray">Configuration: 2,8,1</text>
+</svg>`;
+        }
+
+        // --- Michoro ya Venn (Venn Diagram) ---
+        if (q.includes("venn diagram")) {
+            return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 350 250" width="100%" height="auto">
+  <text x="175" y="20" text-anchor="middle" font-size="14" font-weight="bold">Venn Diagram (Sets A &amp; B)</text>
+  <circle cx="130" cy="110" r="80" fill="rgba(255,0,0,0.2)" stroke="red" stroke-width="2"/>
+  <circle cx="220" cy="110" r="80" fill="rgba(0,0,255,0.2)" stroke="blue" stroke-width="2"/>
+  <text x="90" y="50" font-size="16" font-weight="bold" fill="red">A</text>
+  <text x="250" y="50" font-size="16" font-weight="bold" fill="blue">B</text>
+  <text x="115" y="110" font-size="10">A only</text>
+  <text x="210" y="110" font-size="10">B only</text>
+  <text x="165" y="110" font-size="10">A ∩ B</text>
+  <rect x="110" y="170" width="130" height="40" fill="white" stroke="gray" stroke-dasharray="2"/>
+  <text x="175" y="195" text-anchor="middle" font-size="10">U (Universal set)</text>
+</svg>`;
+        }
+
+        return "Nina uwezo wa kuchora michoro ya: wimbi, ubao wa Punnett, sakiti, muundo wa atomu, na Venn. Taja unachotaka kwa mfano: 'draw wave diagram'.";
+    }
+
+    // ==================== FIZIKIA – VIPENGELE VYOTE KIDATO 1–4 ====================
+    // ----- Kidato cha 1 -----
+    if (q.includes("what is physics") || q.includes("define physics") || q.includes("meaning of physics"))
+        return "Physics is the study of matter, energy, and their interactions. Branches: mechanics, thermodynamics, waves, electricity, magnetism, modern physics.";
+    if (q.includes("measurement") && (q.includes("length") || q.includes("mass") || q.includes("time")))
+        return "🔧 Measurement tools: ruler (mm), vernier caliper (0.1 mm), micrometer (0.01 mm). SI units: length (m), mass (kg), time (s). Volume measured by measuring cylinder or displacement.";
+    if (q.includes("density"))
+        return "📦 Density (ρ) = mass/volume. Units: kg/m³ or g/cm³. Ice floats because ρ_ice < ρ_water. Example: 50 g stone displaces 10 mL water → ρ = 5 g/cm³.";
+    if ((q.includes("force") || q.includes("newton")) && !q.includes("magnetic") && !q.includes("electromotive"))
+        return "⚙️ Force (N) = mass × acceleration (F=ma). Types: gravitational (weight = mg), friction, normal, tension. Hooke’s law: F = kx (spring).";
+    if (q.includes("pressure"))
+        return "📌 Pressure = Force/Area (P = F/A). Unit: Pascal (Pa). Liquid pressure: P = ρgh (depends only on depth). Atmospheric pressure ≈ 101325 Pa.";
+
+    // ----- Kidato cha 2 -----
+    if (q.includes("magnetism") || q.includes("magnetic field"))
+        return "🧲 Magnets have N and S poles. Like repel, unlike attract. Field lines go N→S outside. Earth has magnetic field (compass points north).";
+    if (q.includes("static electricity") || q.includes("electrostatics") || q.includes("charge by friction"))
+        return "⚡ Static charge: electrons transfer by friction. Like charges repel, unlike attract. Charged objects attract neutral ones (induction).";
+    if ((q.includes("current electricity") || q.includes("ohm's law")) && !q.includes("alternating"))
+        return "🔌 Ohm’s law: V = IR. Series: R_total = R₁+R₂+…, same I. Parallel: 1/R_total = 1/R₁+1/R₂+…, same V. Power P = VI = I²R.";
+    if ((q.includes("wave") && !q.includes("sound") && !q.includes("electromagnetic")) || q.includes("transverse wave") || q.includes("longitudinal wave"))
+        return "🌊 Wave properties: amplitude (A), wavelength (λ), frequency (f), period (T=1/f), velocity (v = λf). Transverse (light): vibrations ⊥ travel. Longitudinal (sound): vibrations ∥ travel.\n📐 Diagram: /\\  /\\  /\\ (crest & trough).";
+
+    // ----- Kidato cha 3 -----
+    if (q.includes("thermal expansion"))
+        return "🔥 Expansion: ΔL = αL₀ΔT (solids). Water anomalous (0‑4°C contracts). Bimetallic strip bends when heated → thermostat.";
+    if (q.includes("heat transfer") || q.includes("conduction") || q.includes("convection") || q.includes("radiation"))
+        return "🔥 Heat transfer: Conduction (solids), Convection (fluids), Radiation (infrared, no medium).";
+    if (q.includes("reflection of light") || (q.includes("reflection") && q.includes("mirror")))
+        return "🪞 Reflection: angle of incidence = angle of reflection. Plane mirror: image virtual, same size, laterally inverted.";
+    if (q.includes("refraction of light") || (q.includes("refraction") && q.includes("lens")))
+        return "💧 Refraction: bending of light. Snell’s law: n₁ sinθ₁ = n₂ sinθ₂. Into denser medium → bends toward normal. Total internal reflection (critical angle).";
+    if (q.includes("lens") || q.includes("convex lens") || q.includes("concave lens"))
+        return "🔍 Convex (converging): real/virtual images. Concave (diverging): always virtual. Lens formula: 1/f = 1/v + 1/u.";
+    if (q.includes("sound wave") || (q.includes("sound") && !q.includes("speed")))
+        return "🔊 Sound: longitudinal wave, needs medium. Speed in air ≈ 343 m/s. Pitch (frequency), loudness (amplitude). Echo = reflection. Ultrasound >20 kHz.";
+
+    // ----- Kidato cha 4 (pamoja na nyongeza ya mawimbi) -----
+    // Mawimbi – jibu lililopanuliwa kwa mtindo wa mwongozo (kama Studocu)
+    if ((q.includes("waves") && q.includes("form 4")) || q.includes("wave behaviour") || q.includes("ripple tank")) {
+        return `🌊 **Mawimbi – Kidato cha 4 (Muundo wa Mwongozo)**  
+Mawimbi ni usumbufu unaosafiri kupitia chombo au nafasi.  
+**Aina:**  
+- **Transverse**: chembe hutetemeka pembe ya mwelekeo wa wimbi (mf. mawimbi ya kamba, mawimbi ya umeme).  
+- **Longitudinal**: chembe hutetemeka sambamba na mwelekeo (mf. sauti).  
+
+**Tabia za Mawimbi:**  
+1. **Kuakisi (Reflection)**: wimbi linapogonga kizuizi hurudi nyuma. Kanuni: pembe ya tukio = pembe ya kuakisi.  
+2. **Kukataa (Refraction)**: wimbi linapopita kutoka chombo kimoja hadi kingine hubadilisha kasi na mwelekeo (mf. wimbi la maji linapokutana na kina kifupi).  
+3. **Kutengana (Diffraction)**: wimbi linapopita kwenye mwanya mdogo au kuzunguka kizuizi huenea. Hutamkwa zaidi mwanya unapokuwa sawa na urefu wa wimbi.  
+4. **Kuingiliana (Interference)**: wimbi mbili zikikutana, mwinuko na mwinuko huongeza (constructive), mwinuko na kishuka hukatiza (destructive). Matokeo: muundo wa mawimbi tulivu (standing wave).  
+
+**Milinganyo muhimu:**  
+- Kasi ya wimbi: \`v = f × λ\`  
+- Sheria ya kuakisi: \`i = r\`  
+- Uakisi kamili wa ndani: hutokea pembe ya tukio > pembe muhimu (C), ambapo \`sin C = 1/n\`.  
+
+**Majaribio ya Ripple Tank:** hutumia tanki la maji yenye kiwimbi kuonyesha tabia zote hizi.  
+Kwa maelezo zaidi, unaweza kuuliza "draw wave diagram" ili kupata mchoro wa wimbi.`;
+    }
+
+    if (q.includes("electromagnetism") || q.includes("magnetic field due to current") || q.includes("right hand grip rule"))
+        return "⚡ Current‑carrying wire produces circular magnetic field (Right‑hand grip rule). Solenoid acts like bar magnet. Force on conductor: F = BIL sinθ.";
+    if (q.includes("electromagnetic induction") || q.includes("faraday law") || q.includes("lenz law"))
+        return "🌀 Faraday’s law: induced EMF = –N ΔΦ/Δt. Lenz’s law: induced current opposes change. AC generator (alternator), transformer.";
+    if (q.includes("transformer"))
+        return "🔁 Transformer: changes AC voltage using mutual induction. Vp/Vs = Np/Ns. Step‑up (Ns>Np), step‑down (Ns<Np).";
+    if (q.includes("motor") || q.includes("electric motor"))
+        return "⚙️ DC motor: converts electrical → mechanical. Fleming’s left‑hand rule (motor): Thumb=Force, Index=Field, Middle=Current.";
+    if (q.includes("generator") || q.includes("dynamo"))
+        return "💡 Generator: converts mechanical → electrical. Fleming’s right‑hand rule (generator): Thumb=Motion, Index=Field, Middle=Induced current.";
+    if (q.includes("radioactivity") || q.includes("alpha beta gamma") || q.includes("half-life"))
+        return "☢️ Radioactivity: unstable nuclei decay. Alpha (α) – He nucleus, stopped by paper. Beta (β) – electron, stopped by Al. Gamma (γ) – EM wave, stopped by Pb. Half‑life: time for half to decay. N = N₀ (½)^(t/t½).";
+    if (q.includes("thermionic emission") || q.includes("cathode ray") || q.includes("cro"))
+        return "🔥 Thermionic emission: electrons released from hot metal. Used in CRO (cathode ray oscilloscope) to display waveforms. X‑rays: electrons hit metal target.";
+    if (q.includes("electronics") || q.includes("diode") || q.includes("rectification"))
+        return "▶️ Diode: one‑way valve. Half‑wave (1 diode) and full‑wave bridge (4 diodes) convert AC to DC.";
+    if (q.includes("transistor"))
+        return "🔧 Transistor (NPN/PNP): switch or amplifier. β = Ic/Ib. Common emitter amplifier: voltage gain ≈ –Rc/Re.";
+    if (q.includes("logic gate") || q.includes("and gate") || q.includes("or gate") || q.includes("not gate"))
+        return "🎛️ Logic gates: AND (1 only if both 1), OR (1 if at least one 1), NOT (inverts). NAND, NOR, XOR.";
+    if (q.includes("astronomy") || q.includes("solar system") || q.includes("planet") || q.includes("eclipse"))
+        return "🌞 Solar system: Sun + 8 planets. Earth rotation (24h → day/night), revolution (365.25d → seasons). Solar eclipse (Moon between Sun & Earth), lunar eclipse (Earth between Sun & Moon).";
+    if (q.includes("geophysics") || q.includes("earth structure") || q.includes("earthquake") || q.includes("volcano"))
+        return "🌍 Earth layers: crust, mantle, outer core (liquid), inner core (solid). Earthquakes: P‑waves (solid/liquid), S‑waves (only solids). Volcano types: shield, composite, cinder cone.";
+
+    // ==================== KEMIA – VIPENGELE VYOTE ====================
+    if (q.includes("atom") || q.includes("atomic structure") || q.includes("proton") || q.includes("neutron") || q.includes("electron"))
+        return "⚛️ Atom: nucleus (protons + neutrons) + electrons. Atomic number (Z) = protons. Mass number (A) = protons+neutrons. Isotopes: same Z, different A. Electron shells: 2,8,8,…";
+    if (q.includes("periodic table") || q.includes("group") || q.includes("period"))
+        return "📊 Periodic table: groups (vertical, same valence electrons), periods (horizontal, same shells). Metals left, non‑metals right. Alkali metals (Group 1), halogens (Group 17), noble gases (Group 18).";
+    if (q.includes("chemical bonding") || q.includes("ionic bond") || q.includes("covalent bond") || q.includes("metallic bond"))
+        return "🧲 Ionic bond: electron transfer (metal→nonmetal), e.g., NaCl. Covalent bond: electron sharing, e.g., H₂O. Metallic bond: sea of electrons.";
+    if (q.includes("mole concept") || q.includes("avogadro") || q.includes("molar mass"))
+        return "🧮 1 mole = 6.022×10²³ particles. n = mass / molar mass. Example: 18 g H₂O (M=18) → n=1 mol.";
+    if (q.includes("acid") || q.includes("base") || q.includes("ph") || q.includes("neutralisation"))
+        return "🧪 Acids donate H⁺, bases donate OH⁻ or accept H⁺. pH scale 0‑14 (<7 acid, >7 base). Neutralisation: acid+base → salt+water. Indicators: litmus, phenolphthalein.";
+    if (q.includes("gas law") || q.includes("boyle") || q.includes("charles"))
+        return "📈 Boyle’s law: P₁V₁ = P₂V₂ (const T). Charles: V₁/T₁ = V₂/T₂ (const P). Combined: P₁V₁/T₁ = P₂V₂/T₂. Ideal gas: PV = nRT.";
+    if (q.includes("electrolysis"))
+        return "⚡ Electrolysis: decomposition using electricity. Cathode (–) reduction, anode (+) oxidation. Example: molten NaCl → Na at cathode, Cl₂ at anode.";
+    if (q.includes("organic chemistry") || q.includes("alkane") || q.includes("alkene") || q.includes("alkyne"))
+        return "🛢️ Alkanes (C–C single, CnH2n+2) – substitution. Alkenes (C=C, CnH2n) – addition, decolourise Br₂ water. Alkynes (C≡C).";
+    if (q.includes("alcohol") || q.includes("ethanol") || q.includes("fermentation"))
+        return "🍷 Alcohols: R–OH. Ethanol from fermentation (sugar → CO₂ + C₂H₅OH). Oxidation → ethanal → ethanoic acid (vinegar).";
+    if (q.includes("carboxylic acid") || q.includes("esterification"))
+        return "🧴 Carboxylic acids: R–COOH. Esterification: acid + alcohol → ester + water (fruity smell).";
+    if (q.includes("rate of reaction") || q.includes("reaction rate"))
+        return "⏱️ Rate affected by temperature, concentration, surface area, catalyst. Collision theory: particles must collide with enough energy and correct orientation.";
+    if (q.includes("equilibrium") || q.includes("le chatelier"))
+        return "⚖️ Dynamic equilibrium: forward rate = reverse rate. Le Chatelier: system shifts to oppose changes. High pressure favours fewer gas moles. Exothermic reaction – high temperature reduces yield.";
+    if (q.includes("redox") || q.includes("oxidation") || q.includes("reduction"))
+        return "🔋 Oxidation = loss of electrons (OIL), reduction = gain (RIG). Oxidising agent (gets reduced), reducing agent (gets oxidised).";
+    if (q.includes("electrochemical cell") || q.includes("galvanic cell"))
+        return "🔋 Galvanic cell: spontaneous redox produces electricity. Zn | Zn²⁺ || Cu²⁺ | Cu. Anode (–) oxidation, cathode (+) reduction. E°cell = E°cathode – E°anode.";
+    if (q.includes("reactivity series"))
+        return "📉 Reactivity: K > Na > Ca > Mg > Al > Zn > Fe > Pb > (H) > Cu > Ag > Au. Top metals react with water/acid, bottom found native.";
+    if (q.includes("rusting") || q.includes("corrosion"))
+        return "🛑 Rusting: Fe + O₂ + H₂O → hydrated iron(III) oxide. Prevention: painting, galvanising (Zn), sacrificial protection, stainless steel.";
+    if (q.includes("chlorine") || q.includes("halogen"))
+        return "🧪 Chlorine (Cl₂): green gas, disinfectant, bleach. Preparation: MnO₂ + 4HCl → MnCl₂ + Cl₂ + 2H₂O.";
+
+    // ==================== BAIOLOJIA – VIPENGELE VYOTE ====================
+    if (q.includes("cell") && (q.includes("animal") || q.includes("plant") || q.includes("structure")))
+        return "🔬 Animal cell: cell membrane, nucleus, cytoplasm, mitochondria. Plant cell: + cell wall, chloroplast, large vacuole.";
+    if (q.includes("diffusion"))
+        return "💨 Diffusion: net movement from high to low concentration (passive). Example: perfume spreading.";
+    if (q.includes("osmosis"))
+        return "💧 Osmosis: water diffusion across semi‑permeable membrane. Hypotonic → cell swells, hypertonic → shrinks.";
+    if (q.includes("photosynthesis"))
+        return "🌿 Photosynthesis: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (light, chlorophyll). Occurs in chloroplasts.";
+    if (q.includes("digestive system"))
+        return "🍔 Digestion: mouth → stomach → small intestine (absorption) → large intestine. Enzymes: amylase, pepsin, lipase.";
+    if (q.includes("circulatory system") || q.includes("heart"))
+        return "🫀 Heart (4 chambers) → arteries → capillaries → veins → back to heart. Blood: RBC (O₂), WBC (immunity), platelets (clotting), plasma.";
+    if (q.includes("respiration") && !q.includes("cellular"))
+        return "🌬️ Breathing: inhalation (diaphragm contracts), exhalation. Gas exchange in alveoli.";
+    if (q.includes("cellular respiration"))
+        return "⚡ Cellular respiration: C₆H₁₂O₆ + 6O₂ → 6CO₂ + 6H₂O + 36‑38 ATP (aerobic). Anaerobic: lactic acid or ethanol + CO₂, 2 ATP.";
+    if (q.includes("nervous system") || q.includes("reflex arc"))
+        return "🧠 CNS (brain+spinal cord), PNS (nerves). Reflex arc: stimulus → receptor → sensory → relay → motor → effector.";
+    if (q.includes("hormone") || q.includes("endocrine"))
+        return "🧪 Hormones: chemical messengers via blood. Insulin (lowers glucose), adrenaline (fight‑or‑flight), oestrogen/testosterone.";
+    if (q.includes("excretion") || q.includes("kidney"))
+        return "🚽 Kidneys filter blood → urine (urea, excess water/salts). Lungs excrete CO₂, skin excretes sweat.";
+    if (q.includes("reproduction"))
+        return "👶 Male: testes (sperm). Female: ovaries (eggs). Fertilisation in fallopian tube → zygote → embryo → foetus (9 months).";
+    if (q.includes("genetics") || q.includes("gene") || q.includes("allele"))
+        return "🧬 Genetics: study of heredity. Genotype (TT,Tt,tt) vs phenotype (tall,short). Dominant allele masks recessive. Monohybrid cross ratio 3:1 in F2.";
+    if (q.includes("punnett square"))
+        return "📐 Punnett square: predicts offspring. Example Tt × Tt → 1 TT : 2 Tt : 1 tt → 3 tall : 1 short.";
+    if (q.includes("evolution") || q.includes("natural selection") || q.includes("darwin"))
+        return "🐦 Natural selection: overproduction, variation, competition, survival of the fittest, inheritance. Example: peppered moth.";
+    if (q.includes("ecology") || q.includes("food chain") || q.includes("food web"))
+        return "🌍 Food chain: producer → primary consumer → secondary consumer → tertiary consumer. Energy pyramid: ~10% transfer.";
+    if (q.includes("malaria"))
+        return "🦟 Malaria: Plasmodium, transmitted by Anopheles mosquito. Symptoms: fever, chills. Prevention: nets, insecticides. Treatment: ACT.";
+    if (q.includes("hiv") || q.includes("aids"))
+        return "🦠 HIV attacks CD4 cells, causes AIDS. Transmission: unprotected sex, needles, mother to child. Prevention: condoms, PrEP. Treatment: ART.";
+    if (q.includes("tuberculosis") || q.includes("tb"))
+        return "🫁 TB: Mycobacterium tuberculosis, airborne. Symptoms: chronic cough, fever, night sweats. Treatment: DOTS (6 months). Prevention: BCG vaccine.";
+
+    // ==================== HISABATI – VIPENGELE VYOTE ====================
+    if (q.includes("fraction"))
+        return "🧮 Fraction: a/b. Add: common denominator. Multiply: (a/b)×(c/d)=ac/(bd). Simplify using GCD.";
+    if (q.includes("percentage"))
+        return "% Percentage = (part/whole)×100. Increase: ×(1+%/100), decrease: ×(1–%/100).";
+    if (q.includes("integer"))
+        return "🔢 Integers: …,-2,-1,0,1,2,… Add/subtract using number line. Negative×negative=positive.";
+    if (q.includes("algebra") && (q.includes("expression") || q.includes("simplify")))
+        return "📐 Algebra: like terms combine. Expand: a(b+c)=ab+ac. Factor: common factor.";
+    if (q.includes("linear equation"))
+        return "✖️ Linear equation: ax+b=c → x=(c−b)/a. Example: 2x+3=7 → x=2.";
+    if (q.includes("ratio"))
+        return "📊 Ratio a:b = a/b. Simplify by dividing common factor. Divide quantity in ratio: total parts, then multiply.";
+    if (q.includes("area") || q.includes("perimeter"))
+        return "📏 Rectangle: A=l×w, P=2(l+w). Circle: A=πr², C=2πr. Triangle: A=½bh.";
+    if (q.includes("pythagoras") || q.includes("pythagorean"))
+        return "📐 a²+b²=c² (right triangle). Example: legs 3,4 → hypotenuse 5.";
+    if (q.includes("trigonometry") || q.includes("sin") || q.includes("cos") || q.includes("tan"))
+        return "📐 SOH CAH TOA. sinθ=opp/hyp, cosθ=adj/hyp, tanθ=opp/adj. Special angles 30°,45°,60°.";
+    if (q.includes("mean") || q.includes("median") || q.includes("mode"))
+        return "📊 Mean = sum/n, median = middle value, mode = most frequent.";
+    if (q.includes("matrix") && (q.includes("addition") || q.includes("subtraction")))
+        return "🧮 Add/subtract matrices of same dimensions element‑wise.";
+    if (q.includes("coordinate geometry") || q.includes("distance formula"))
+        return "📏 Distance = √[(x₂–x₁)²+(y₂–y₁)²]. Midpoint = ((x₁+x₂)/2, (y₁+y₂)/2). Gradient m = (y₂–y₁)/(x₂–x₁).";
+    if (q.includes("vector"))
+        return "➡️ Vector: magnitude+direction. Add component‑wise. Magnitude |v|=√(x²+y²).";
+    if (q.includes("linear programming"))
+        return "📈 Maximise/minimise objective function under constraints. Graph feasible region, test corner points.";
+    if (q.includes("probability"))
+        return "🎲 Probability = favourable/total (0‑1). Example: die P(even)=3/6=0.5. Independent: P(A and B)=P(A)×P(B).";
+    if (q.includes("set") && (q.includes("union") || q.includes("intersection")))
+        return "📚 Union (A∪B): elements in A or B. Intersection (A∩B): in both. Complement (A'): not in A. Venn diagrams.";
+
+    // ==================== JIOGRAFIA – VIPENGELE VYOTE ====================
+    if (q.includes("geography") || q.includes("map") || q.includes("climate") || q.includes("soil") || q.includes("population") || q.includes("agriculture") || q.includes("settlement") || q.includes("tourism")) {
+        if (q.includes("map") && (q.includes("scale") || q.includes("bearing")))
+            return "🗺️ Map scale: 1:50,000 means 1cm=0.5km. Bearing: angle clockwise from north (0‑360°). Contour lines: join equal height – close = steep.";
+        if (q.includes("climate"))
+            return "🌡️ Climate vs weather. Factors: latitude, altitude, distance from sea, ocean currents. Rainfall types: convectional, orographic, cyclonic.";
+        if (q.includes("soil"))
+            return "🌱 Soil profile: O (organic) → A (topsoil) → B (subsoil) → C (parent rock). Erosion prevention: contour ploughing, terracing.";
+        if (q.includes("population"))
+            return "👥 Population density = people/area. Factors: physical (water, climate) and human (jobs, services). Population pyramid shows age structure.";
+        if (q.includes("agriculture"))
+            return "🌾 Subsistence (family) vs commercial (sale). Tanzania cash crops: coffee, cotton, cashew. Challenges: drought, pests, poor infrastructure.";
+        if (q.includes("tourism"))
+            return "🏞️ Tanzanian attractions: Serengeti, Ngorongoro, Kilimanjaro, Zanzibar. Benefits: jobs, foreign currency. Challenges: seasonal, environmental.";
+        return "🌍 Geography: study of Earth’s physical features, climate, population, and human activities. Topics: map reading, climate, vegetation, soils, agriculture, population, settlement, tourism, and environmental issues.";
+    }
+
+    // ----- Mwisho: amri za kusaidia -----
+    const syllabusKeywords = ["physics", "chemistry", "biology", "mathematics", "geography", "science", "form", "olevel", "tanzania"];
+    for (let kw of syllabusKeywords) {
+        if (q.includes(kw)) {
+            return "I'm offline but my offline database covers 100% of Tanzanian O‑Level (Form 1‑4) Physics, Chemistry, Biology, Mathematics, and Geography. Please rephrase your question or ask a specific topic (e.g., 'What is an atom?', 'Explain photosynthesis', 'Calculate map scale').";
+        }
+    }
+
+    return "I'm offline. I can only answer few questions.for more response switch to online mode'";
+}
+
+            function sendMessage() {
+                const text = chatInput.value.trim();
+                if (!text && state.pendingAttachments.length === 0) return;
+                if (state.isGenerating) { state.abortController?.abort(); return; }
+                let chat = state.chats[state.currentChatId];
+                if (!chat) { createNewChat(); chat = state.chats[state.currentChatId]; if (!chat) return; }
+                let userContent = text || '';
+                let userImage = null;
+                const imgAttach = state.pendingAttachments.find(a => a.type === 'image');
+                if (imgAttach) { userImage = imgAttach.data; if (!userContent) userContent = '[Image]'; }
+                if (!userContent && !userImage) {
+                    const docAttach = state.pendingAttachments.find(a => a.type === 'document');
+                    if (docAttach) userContent = docAttach.textContent || '[Document attached]';
+                    else userContent = '[Attachment]';
+                }
+                const userMsg = { role: 'user', content: userContent, timestamp: new Date().toISOString() };
+                if (userImage) userMsg.image = userImage;
+                chat.messages.push(userMsg);
+                chat.title = text ? text.slice(0,40) : (imgAttach ? 'Image' : 'Document');
+                chat.updatedAt = new Date().toISOString();
+                chatInput.value = '';
+                state.pendingAttachments = [];
+                clearAttachments();
+                updateSendBtnVisibility();
+                renderCurrentChat();
+                saveState();
+                renderChatHistory();
+                if (greetingArea) greetingArea.style.display = 'none';
+                generateAIResponse(userContent, userImage);
+            }
+
+            function clearAttachments() {
+                if (attachmentPreview) { attachmentPreview.innerHTML = ''; attachmentPreview.style.display = 'none'; }
+                state.pendingAttachments = [];
+                updateSendBtnVisibility();
+            }
+
+            function updateSendBtnVisibility() {
+                if (state.isGenerating) sendBtn.classList.add('visible', 'stop-mode');
+                else if ((chatInput && chatInput.value.trim()) || state.pendingAttachments.length) sendBtn.classList.add('visible');
+                else sendBtn.classList.remove('visible', 'stop-mode');
+            }
+
+            function renderChatHistory() {
+                if (!chatHistoryList) return;
+                const search = historySearch ? historySearch.value.toLowerCase() : '';
+                chatHistoryList.innerHTML = '';
+                const groups = {};
+                Object.values(state.chats).forEach(chat => {
+                    if (search && !chat.title.toLowerCase().includes(search)) return;
+                    const day = new Date(chat.createdAt).toLocaleDateString();
+                    (groups[day] = groups[day] || []).push(chat);
+                });
+                Object.keys(groups).sort((a,b) => new Date(groups[b][0].createdAt) - new Date(groups[a][0].createdAt)).forEach(day => {
+                    const grp = document.createElement('div'); grp.className = 'history-group';
+                    grp.innerHTML = '<div class="history-group-label">' + day + '</div>';
+                    groups[day].forEach(chat => {
+                        const item = document.createElement('div'); item.className = 'history-item';
+                        item.innerHTML = '<span style="flex:1;overflow:hidden;text-overflow:ellipsis;">' + (chat.title || 'New Chat') + '</span>';
+                        const trash = document.createElement('button'); trash.className = 'trash-btn'; trash.innerHTML = '🗑️';
+                        trash.onclick = e => { e.stopPropagation(); delete state.chats[chat.id]; if(state.currentChatId === chat.id) createNewChat(); saveState(); renderChatHistory(); };
+                        item.appendChild(trash);
+                        item.onclick = () => { state.currentChatId = chat.id; renderCurrentChat(); updateGreeting(); closeSidePanel(); saveState(); };
+                        grp.appendChild(item);
+                    });
+                    chatHistoryList.appendChild(grp);
+                });
+            }
+
+            function renderUserSection() {
+                if (!userSection) return;
+                userSection.innerHTML = '';
+                const av = document.createElement('div'); av.className = 'avatar'; av.innerHTML = state.user?.profilePic ? `<img src="${state.user.profilePic}" style="width:40px;height:40px;border-radius:50%;">` : '👤';
+                av.onclick = () => showProfileEditor();
+                const info = document.createElement('div'); info.className = 'user-info'; info.innerHTML = `<div>${state.user ? state.user.username : 'Guest'}</div><div style="font-size:0.7rem;">${state.user ? state.user.email : 'Not logged'}</div>`;
+                const loginBtn = document.createElement('button'); loginBtn.textContent = state.user ? 'Logout' : 'Login'; loginBtn.onclick = () => { if(state.user){ state.user=null; saveState(); renderUserSection(); updateGreeting(); } else showAuthModal(); };
+                userSection.append(av, info, loginBtn);
+            }
+
+            function showAuthModal() { const username = prompt("Username:"); if(username) { state.user={username, email:`${username}@local`, profilePic:''}; saveState(); renderUserSection(); updateGreeting(); } }
+            function showProfileEditor() { if(state.user){ const newName=prompt("New name",state.user.username); if(newName){ state.user.username=newName; saveState(); renderUserSection(); updateGreeting(); } } }
+
+            function renderSettingsDropdown() {
+    // Weka thamani chaguomsingi za vigezo vipya ikiwa havipo
+    if (state.responseDetail === undefined) state.responseDetail = 'detailed';
+    if (state.fontSize === undefined) state.fontSize = 'medium';
+    if (state.fontFamily === undefined) state.fontFamily = 'sans-serif';
+    if (state.speechOutput === undefined) state.speechOutput = false;
+    if (state.speechInput === undefined) state.speechInput = false;
+    if (state.autoScroll === undefined) state.autoScroll = true;
+    if (state.diagramPreview === undefined) state.diagramPreview = true;
+    if (state.privacyMode === undefined) state.privacyMode = false;
+    if (state.notificationSound === undefined) state.notificationSound = true;
+    if (state.defaultSubject === undefined) state.defaultSubject = 'all';
+
+    const isSwahili = state.language === 'swahili';
+    const t = (en, sw) => isSwahili ? sw : en;
+
+    // Washa kitufe (hali amilifu) kwa kuonyesha ON/OFF na rangi
+    const btnClass = (on) => on ? 'active-state' : '';
+
+    let html = `<div class="settings-panel compact-grid">`;
+
+    // Lugha + Hali ya kufikiri (safu moja)
+    html += `<div class="setting-row two-col">
+        <div><span>${t('Language', 'Lugha')}</span><button id="langToggleBtn">${t('English', 'Swahili')}</button></div>
+        <div><span>${t('Thinking', 'Kufikiri')}</span><button id="thinkToggleBtn" class="${btnClass(state.thinkingMode)}">${state.thinkingMode ? 'ON' : 'OFF'}</button></div>
+    </div>`;
+
+    // Maelezo + Ukubwa wa herufi (safu moja)
+    html += `<div class="setting-row two-col">
+        <div>
+            <span>${t('Detail', 'Maelezo')}</span>
+            <select id="responseDetailSelect">
+                <option value="concise" ${state.responseDetail==='concise'?'selected':''}>${t('Fupi', 'Fupi')}</option>
+                <option value="detailed" ${state.responseDetail==='detailed'?'selected':''}>${t('Kina', 'Kina')}</option>
+            </select>
+        </div>
+        <div>
+            <span>${t('Font Size', 'Herufi')}</span>
+            <select id="fontSizeSelect">
+                <option value="small" ${state.fontSize==='small'?'selected':''}>${t('S', 'Ndogo')}</option>
+                <option value="medium" ${state.fontSize==='medium'?'selected':''}>${t('M', 'Wastani')}</option>
+                <option value="large" ${state.fontSize==='large'?'selected':''}>${t('L', 'Kubwa')}</option>
+            </select>
+        </div>
+    </div>`;
+
+    // Aina ya herufi (safu nzima) – ikiwa na Rosemary
+    html += `<div class="setting-row full-width">
+        <span>${t('Font Family', 'Aina ya Herufi')}</span>
+        <select id="fontFamilySelect">
+            <option value="sans-serif" ${state.fontFamily==='sans-serif'?'selected':''}>Arial (Sans)</option>
+            <option value="serif" ${state.fontFamily==='serif'?'selected':''}>Times New Roman (Serif)</option>
+            <option value="monospace" ${state.fontFamily==='monospace'?'selected':''}>Courier New (Mono)</option>
+            <option value="Rosemary, serif" ${state.fontFamily==='Rosemary, serif'?'selected':''}>Rosemary 🌿</option>
+        </select>
+    </div>`;
+
+    // Sauti za majibu na ingizo (safu moja)
+    html += `<div class="setting-row two-col">
+        <div><span>${t('Speech Out', 'Sauti ya Majibu')}</span><button id="speechOutputToggleBtn" class="${btnClass(state.speechOutput)}">${state.speechOutput ? 'ON' : 'OFF'}</button></div>
+        <div><span>${t('Speech In', 'Ingizo la Sauti')}</span><button id="speechInputToggleBtn" class="${btnClass(state.speechInput)}">${state.speechInput ? 'ON' : 'OFF'}</button></div>
+    </div>`;
+
+    // Auto-scroll + Muonekano wa michoro
+    html += `<div class="setting-row two-col">
+        <div><span>${t('Auto-scroll', 'Sogeza Pekee')}</span><button id="autoScrollToggleBtn" class="${btnClass(state.autoScroll)}">${state.autoScroll ? 'ON' : 'OFF'}</button></div>
+        <div><span>${t('Diagrams', 'Michoro')}</span><button id="diagramPreviewToggleBtn" class="${btnClass(state.diagramPreview)}">${state.diagramPreview ? 'ON' : 'OFF'}</button></div>
+    </div>`;
+
+    // Faragha + Arifa
+    html += `<div class="setting-row two-col">
+        <div><span>${t('Privacy', 'Faragha')}</span><button id="privacyModeToggleBtn" class="${btnClass(state.privacyMode)}">${state.privacyMode ? 'ON' : 'OFF'}</button></div>
+        <div><span>${t('Sound', 'Arifa')}</span><button id="notificationSoundToggleBtn" class="${btnClass(state.notificationSound)}">${state.notificationSound ? 'ON' : 'OFF'}</button></div>
+    </div>`;
+
+    // Somo la msingi (safu nzima)
+    html += `<div class="setting-row full-width">
+        <span>${t('Default Subject', 'Somo la Msingi')}</span>
+        <select id="defaultSubjectSelect">
+            <option value="all" ${state.defaultSubject==='all'?'selected':''}>${t('All', 'Vyote')}</option>
+            <option value="physics" ${state.defaultSubject==='physics'?'selected':''}>${t('Physics', 'Fizikia')}</option>
+            <option value="chemistry" ${state.defaultSubject==='chemistry'?'selected':''}>${t('Chemistry', 'Kemia')}</option>
+            <option value="biology" ${state.defaultSubject==='biology'?'selected':''}>${t('Biology', 'Baiolojia')}</option>
+            <option value="mathematics" ${state.defaultSubject==='mathematics'?'selected':''}>${t('Mathematics', 'Hisabati')}</option>
+            <option value="geography" ${state.defaultSubject==='geography'?'selected':''}>${t('Geography', 'Jiografia')}</option>
+        </select>
+    </div>`;
+
+    // Futa kashe
+    html += `<div class="setting-row full-width">
+        <button id="clearCacheBtn">${t('Clear Offline Cache', 'Futa Kashe ya Nje ya Mtandao')}</button>
+    </div>`;
+
+    // Mmiliki (kompakti)
+    html += `<div class="owner-info" style="margin-top: 12px; padding-top: 8px; border-top: 1px solid #ccc;">
+        <p style="font-weight:bold;">${t('Owner: Protas Felix (2009)', 'Mmiliki: Protas Felix (2009)')}</p>
+        <p>${t('Parent: Stella Damian (Dar es Salaam)', 'Mzazi: Stella Damian (Dar es Salaam)')}</p>
+    </div>`;
+
+    html += `</div>`;
+
+    settingsDropdown.innerHTML = html;
+
+    // -------------------- Visikilizaji vya Matukio (haya hayabadiliki) --------------------
+    document.getElementById('langToggleBtn').onclick = () => {
+        state.language = state.language === 'english' ? 'swahili' : 'english';
+        saveState();
+        if (state.language === 'swahili') applySwahili(); else applyEnglish();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('thinkToggleBtn').onclick = () => {
+        state.thinkingMode = !state.thinkingMode;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('responseDetailSelect').onchange = (e) => {
+        state.responseDetail = e.target.value;
+        saveState();
+    };
+
+    document.getElementById('fontSizeSelect').onchange = (e) => {
+        state.fontSize = e.target.value;
+        saveState();
+        const sizes = { small: '14px', medium: '16px', large: '18px' };
+        document.body.style.fontSize = sizes[state.fontSize] || '16px';
+    };
+
+    document.getElementById('fontFamilySelect').onchange = (e) => {
+        state.fontFamily = e.target.value;
+        saveState();
+        document.body.style.fontFamily = state.fontFamily;
+    };
+
+    document.getElementById('speechOutputToggleBtn').onclick = () => {
+        state.speechOutput = !state.speechOutput;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('speechInputToggleBtn').onclick = () => {
+        state.speechInput = !state.speechInput;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('autoScrollToggleBtn').onclick = () => {
+        state.autoScroll = !state.autoScroll;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('diagramPreviewToggleBtn').onclick = () => {
+        state.diagramPreview = !state.diagramPreview;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('privacyModeToggleBtn').onclick = () => {
+        state.privacyMode = !state.privacyMode;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('notificationSoundToggleBtn').onclick = () => {
+        state.notificationSound = !state.notificationSound;
+        saveState();
+        renderSettingsDropdown();
+    };
+
+    document.getElementById('defaultSubjectSelect').onchange = (e) => {
+        state.defaultSubject = e.target.value;
+        saveState();
+    };
+
+    document.getElementById('clearCacheBtn').onclick = () => {
+        if (confirm(t('Clear all offline cached data?', 'Futa data yote ya nje ya mtandao?'))) {
+            if (window.caches) {
+                caches.keys().then(names => names.forEach(name => caches.delete(name)));
+            }
+            alert(t('Cache cleared!', 'Kashe imefutwa!'));
+        }
+    };
+}
+
+            function closeSidePanel() { sidePanel?.classList.remove('open'); sideOverlay?.classList.remove('show'); }
+            function showToast(msg) { let t=document.querySelector('.toast'); if(t)t.remove(); t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+            function handleFileSelect(files) { Array.from(files).forEach(file=>{ const reader=new FileReader(); if(file.type.startsWith('image/')) reader.onload=e=>{ state.pendingAttachments.push({type:'image',data:e.target.result,name:file.name}); renderAttachmentPreviews(); updateSendBtnVisibility(); }; else reader.onload=e=>{ state.pendingAttachments.push({type:'document',data:e.target.result,textContent:e.target.result,name:file.name}); renderAttachmentPreviews(); updateSendBtnVisibility(); }; reader.readAsDataURL(file); }); }
+            function renderAttachmentPreviews() { if(!attachmentPreview) return; attachmentPreview.innerHTML=''; if(state.pendingAttachments.length===0){ attachmentPreview.style.display='none'; return; } attachmentPreview.style.display='flex'; state.pendingAttachments.forEach((att,i)=>{ let el; if(att.type==='image'){ let img=document.createElement('img'); img.src=att.data; img.style.cssText='width:48px;height:48px;border-radius:10px;'; img.onclick=()=>{ state.pendingAttachments.splice(i,1); renderAttachmentPreviews(); updateSendBtnVisibility(); }; el=img; } else { let span=document.createElement('span'); span.textContent=att.name; span.style.cssText='padding:6px;background:rgba(255,255,255,0.1);border-radius:12px;'; span.onclick=()=>{ state.pendingAttachments.splice(i,1); renderAttachmentPreviews(); updateSendBtnVisibility(); }; el=span; } attachmentPreview.appendChild(el); }); }
+            async function startCamera() { if(state.cameraStream) stopCamera(); try{ const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:state.facingMode}}); state.cameraStream=stream; if(cameraVideo){ cameraVideo.srcObject=stream; await cameraVideo.play(); } cameraFullscreen?.classList.add('active'); } catch(e){ showToast('Camera error'); } }
+            function stopCamera() { if(state.cameraStream){ state.cameraStream.getTracks().forEach(t=>t.stop()); state.cameraStream=null; } cameraFullscreen?.classList.remove('active'); }
+            function capturePhoto() { if(!state.cameraStream||!cameraVideo) return; const canvas=document.createElement('canvas'); canvas.width=cameraVideo.videoWidth; canvas.height=cameraVideo.videoHeight; canvas.getContext('2d').drawImage(cameraVideo,0,0); const data=canvas.toDataURL('image/png'); state.pendingAttachments.push({type:'image',data,name:'camera.png'}); renderAttachmentPreviews(); updateSendBtnVisibility(); stopCamera(); }
+            function rotateCamera() { state.facingMode=state.facingMode==='user'?'environment':'user'; stopCamera(); startCamera(); }
+
+            function startLiveListening() { liveCallOverlay?.classList.add('active'); initAIWave(); if(liveStatus) liveStatus.textContent='Listening...'; state.isLiveListening=true; state.waitingForResponse=false; state.resultProcessed=false; startVoiceRecognition(); }
+            function stopLiveCall() { liveCallOverlay?.classList.remove('active'); state.isLiveListening=false; state.waitingForResponse=false; if(state.recognition){ try{state.recognition.stop();}catch(e){} state.recognition=null; } }
+            function startVoiceRecognition() { const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SpeechRecognition) return; if(state.recognition){ try{state.recognition.stop();}catch(e){} } const recognition=new SpeechRecognition(); recognition.lang=state.language==='swahili'?'sw-KE':'en-US'; recognition.interimResults=false; recognition.continuous=false; recognition.onresult=(e)=>{ const transcript=e.results[0][0].transcript; if(chatInput) chatInput.value=transcript; state.resultProcessed=true; try{recognition.stop();}catch(e){} if(transcript.trim()&&state.isLiveListening&&!state.waitingForResponse) sendMessage(); }; recognition.onerror=()=>{ if(state.isLiveListening&&!state.waitingForResponse) setTimeout(startVoiceRecognition,1000); }; recognition.onend=()=>{ if(state.isLiveListening&&!state.waitingForResponse&&!state.resultProcessed) setTimeout(startVoiceRecognition,500); state.resultProcessed=false; }; recognition.start(); state.recognition=recognition; }
+            function speakAndListenAgain(text) { if(!window.speechSynthesis||!state.isLiveListening) return; state.waitingForResponse=true; if(liveStatus) liveStatus.textContent='AI speaking...'; if(state.recognition){ try{state.recognition.stop();}catch(e){} state.recognition=null; } const utterance=new SpeechSynthesisUtterance(text); utterance.lang=state.language==='swahili'?'sw-KE':'en-US'; utterance.rate=0.95; utterance.onend=()=>{ if(state.isLiveListening){ state.waitingForResponse=false; state.resultProcessed=false; if(liveStatus) liveStatus.textContent='Listening...'; startVoiceRecognition(); } else state.waitingForResponse=false; }; speechSynthesis.speak(utterance); }
+            function startVoiceToText() { const SpeechRecognition=window.SpeechRecognition||window.webkitSpeechRecognition; if(!SpeechRecognition) return; if(state.recognition) try{state.recognition.stop();}catch(e){} const rec=new SpeechRecognition(); rec.lang=state.language==='swahili'?'sw-KE':'en-US'; rec.onresult=e=>{ if(chatInput) chatInput.value=chatInput.value?chatInput.value+" "+e.results[0][0].transcript:e.results[0][0].transcript; updateSendBtnVisibility(); }; rec.start(); }
+            function initAIWave() { if(!aiWave) return; aiWave.innerHTML=''; for(let i=0;i<18;i++){ const bar=document.createElement('div'); bar.className='wave-bar'; bar.style.left=(i*10)+'px'; bar.style.animationDelay=(i*0.06)+'s'; bar.style.background=i%3===0?'#3b82f6':i%3===1?'#8b5cf6':'#10b981'; aiWave.appendChild(bar); } }
+            function initBlurOrbs() { if(!blurBg) return; blurBg.innerHTML=''; for(let i=0;i<3;i++){ const orb=document.createElement('div'); orb.className='blur-orb'; orb.style.width=orb.style.height=(180+Math.random()*200)+'px'; orb.style.background=['#3b82f6','#8b5cf6','#10b981'][Math.floor(Math.random()*3)]; orb.style.left=Math.random()*80+'%'; orb.style.top=Math.random()*80+'%'; blurBg.appendChild(orb); } }
+            function updateModeButtons() { if(!modeSelector) return; modeSelector.querySelectorAll('.mode-btn').forEach(b=>{ b.classList.remove('active-online','active-offline'); if(b.dataset.mode===state.mode) b.classList.add(state.mode==='online'?'active-online':'active-offline'); }); }
+
+            // Event listeners
+            cameraBtn?.addEventListener('click', startCamera);
+            closeCameraBtn?.addEventListener('click', stopCamera);
+            cancelCameraBtn?.addEventListener('click', stopCamera);
+            capturePhotoBtn?.addEventListener('click', capturePhoto);
+            rotateCameraBtn?.addEventListener('click', rotateCamera);
+            voiceBtn?.addEventListener('mousedown', e=>{ e.preventDefault(); state.voiceLongPress=setTimeout(startLiveListening,500); });
+            voiceBtn?.addEventListener('mouseup', ()=>{ clearTimeout(state.voiceLongPress); if(!state.isLiveListening) startVoiceToText(); });
+            voiceBtn?.addEventListener('mouseleave', ()=>clearTimeout(state.voiceLongPress));
+            voiceBtn?.addEventListener('touchstart', e=>{ e.preventDefault(); state.voiceLongPress=setTimeout(startLiveListening,500); });
+            voiceBtn?.addEventListener('touchend', e=>{ e.preventDefault(); clearTimeout(state.voiceLongPress); if(!state.isLiveListening) startVoiceToText(); });
+            endCallBtn?.addEventListener('click', stopLiveCall);
+            menuBtn?.addEventListener('click', ()=>{ sidePanel?.classList.toggle('open'); sideOverlay?.classList.toggle('show'); renderChatHistory(); });
+            sideOverlay?.addEventListener('click', closeSidePanel);
+            settingsBtn?.addEventListener('click', e=>{ e.stopPropagation(); renderSettingsDropdown(); settingsDropdown?.classList.toggle('show'); });
+            if(!document.getElementById('newChatBtn')) { const btn = document.createElement('button'); btn.id='newChatBtn'; btn.style.display='none'; document.body.appendChild(btn); }
+            document.getElementById('newChatBtn')?.addEventListener('click', createNewChat);
+            sendBtn?.addEventListener('click', ()=>{ if(state.isGenerating&&state.abortController) state.abortController.abort(); else sendMessage(); });
+            chatInput?.addEventListener('input', updateSendBtnVisibility);
+            chatInput?.addEventListener('keydown', e=>{ if(e.key==="Enter"&&!e.shiftKey){ e.preventDefault(); sendMessage(); } });
+            modeSelector?.addEventListener('click', e=>{ if(e.target.classList.contains('mode-btn')){ state.mode=e.target.dataset.mode; updateModeButtons(); saveState(); } });
+            uploadBtn?.addEventListener('click',()=>fileInput?.click());
+            imageBtn?.addEventListener('click',()=>fileInput?.click());
+            docBtn?.addEventListener('click',()=>fileInput?.click());
+            fileInput?.addEventListener('change',e=>{ if(e.target.files.length) handleFileSelect(e.target.files); fileInput.value=''; });
+            historySearch?.addEventListener('input', renderChatHistory);
+            document.addEventListener("click", (e)=>{ if(e.target.classList.contains("copy-code-btn")){ const code=e.target.parentElement.querySelector("code").innerText; navigator.clipboard.writeText(code); showToast("Copied"); } if(e.target.classList.contains("download-code-btn")){ const code=e.target.parentElement.querySelector("code").innerText; const blob=new Blob([code],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="code.txt"; a.click(); URL.revokeObjectURL(a.href); } });
+            window.exportChat = function(){ const chat=state.chats[state.currentChatId]; if(!chat) return; let text=""; chat.messages.forEach(msg=>{ text+=`[${msg.role.toUpperCase()}]\n${msg.content}\n\n`; }); const blob=new Blob([text],{type:"text/plain"}); const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download="chat.txt"; a.click(); };
+            middleLayer?.addEventListener('scroll', ()=>{ const dist=middleLayer.scrollHeight-middleLayer.scrollTop-middleLayer.clientHeight; autoScrollEnabled=dist<150; });
+            initBlurOrbs();
+            loadState();
+            updateSendBtnVisibility();
+        } catch (err) { console.error(err); }
+    })();
+    </script>
+</body>
+
+</html>
